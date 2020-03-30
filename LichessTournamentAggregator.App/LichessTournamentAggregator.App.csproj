@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <RuntimeIdentifiers>win-x64;win-x86;linux-x64;osx-x64</RuntimeIdentifiers>
+    <PublishSingleFile>true</PublishSingleFile>
+    <PublishTrimmed>true</PublishTrimmed>
+    <Version>0.1.0</Version>
+    <Authors>Eduardo Cáceres</Authors>
+    <Description>
+      Multiplatform desktop app that allows you to aggregate the results of multiple Lichess tournaments
+    </Description>
+    <PackageLicenseUrl>https://github.com/eduherminio/LichessTournamentAggregator/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/eduherminio/LichessTournamentAggregator</PackageProjectUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\LichessTournamentAggregator\LichessTournamentAggregator.csproj" />
+  </ItemGroup>
+
+</Project>

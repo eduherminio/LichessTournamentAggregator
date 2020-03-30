@@ -1,0 +1,131 @@
+name: $(BuildID)
+
+trigger:
+  branches:
+    include:
+    - master
+
+variables:
+  Agent: 'windows-2019'
+  BuildConfiguration: 'Release'   # configuration to pack, does not work with build step
+
+strategy:
+  matrix:
+    win-x64:
+      exe_runtime: "win-x64"
+    win-x86:
+      exe_runtime: "win-x86"
+    linux-x64:
+      exe_runtime: "linux-x64"
+    osx-x64:
+      exe_runtime: "osx-x64"
+  maxParallel: 4
+
+stages:
+- stage: CI
+  displayName: 'Build and run tests'
+  jobs:
+  - job: ci
+    displayName: 'Build and run tests'
+    pool:
+      vmImage: $(Agent)
+    steps:
+
+    - task: DotNetCoreCLI@2
+      displayName: 'Build'
+      inputs:
+        command: build
+        arguments: '--configuration Release'
+        projects: 'LichessTournamentAggregator.sln'
+
+    - task: DotNetCoreCLI@2
+      displayName: 'Run tests'
+      inputs:
+        command: test
+        arguments: '--configuration Release --logger trx --collect "Code coverage"'
+        nobuild: true
+        projects: '**/*.Test.csproj'
+        publishTestResults: true
+
+- stage: CD
+  displayName: 'Generate library package'
+  dependsOn: 'CI'
+  condition: and(succeeded('CI'), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+  jobs:
+  - job: cd
+    displayName: 'Generate package(s)'
+    pool:
+      vmImage: $(Agent)
+    steps:
+
+    - checkout: self
+      persistCredentials: true
+      clean: true
+
+    - task: NuGetToolInstaller@1
+      displayName: 'Setup NuGet'
+      inputs:
+        versionSpec: '5.3.1'
+        checkLatest: true
+
+    - task: CmdLine@2
+      displayName: 'Setup Git'
+      inputs:
+        workingDirectory: $(Build.SourcesDirectory)/LichessTournamentAggregator
+        script: |
+            git config --replace-all user.email "azure@devops.com"
+            git config --replace-all user.name "Azure DevOps"
+
+    - task: DotNetCoreCLI@2
+      displayName: 'Build'
+      inputs:
+        command: build
+        arguments: '--configuration Release'
+        projects: 'LichessTournamentAggregator.sln'
+
+    - task: DotNetCoreCLI@2
+      displayName: 'Generate NuGet package'
+      inputs:
+        command: 'pack'
+        arguments: '--configuration Release'
+        configuration: '$(BuildConfiguration)'
+        packagesToPack: '**/*LichessTournamentAggregator.csproj'
+        nobuild: true
+        packDirectory: '$(Build.SourcesDirectory)/LichessTournamentAggregator/Artifacts'
+        versioningScheme: 'off'
+
+    - task: DotNetCoreCLI@2
+      displayName: 'Generate executable for $(exe_runtime)'
+      inputs:
+        command: 'publish'
+        arguments: '--configuration Release --runtime $(exe_runtime) --output $(Build.SourcesDirectory)/LichessTournamentAggregator/Artifacts/$(exe_runtime)'
+        configuration: '$(BuildConfiguration)'
+        projects: '**/*.App.csproj'
+        nobuild: true
+        modifyOutputPath: 'true'
+        zipAfterPublish: false
+        versioningScheme: 'off'
+
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish artifacts: NuGet package and its symbols and app executables'
+      inputs:
+        pathtoPublish: '$(Build.SourcesDirectory)/LichessTournamentAggregator/Artifacts/'
+        artifactName: 'LichessTournamentAggregator'
+
+    - task: NuGetCommand@2
+      displayName: 'Push NuGet package'
+      inputs:
+        command: 'push'
+        packagesToPush: '$(Build.SourcesDirectory)/LichessTournamentAggregator/Artifacts/*.nupkg'
+        nuGetFeedType: 'external'
+        publishFeedCredentials: 'LichessTournamentAggregator_NuGet'
+        verbosityPush: 'Detailed'
+
+    - task: NuGetCommand@2
+      displayName: 'Push GitHub package'
+      inputs:
+        command: 'push'
+        packagesToPush: '$(Build.SourcesDirectory)/LichessTournamentAggregator/Artifacts/*.nupkg'
+        nuGetFeedType: 'external'
+        publishFeedCredentials: 'GitHubPackageRegistry'
+        verbosityPush: 'Detailed'
