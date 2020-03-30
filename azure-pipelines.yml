@@ -8,18 +8,10 @@ trigger:
 variables:
   Agent: 'windows-2019'
   BuildConfiguration: 'Release'   # configuration to pack, does not work with build step
-
-strategy:
-  matrix:
-    win-x64:
-      exe_runtime: "win-x64"
-    win-x86:
-      exe_runtime: "win-x86"
-    linux-x64:
-      exe_runtime: "linux-x64"
-    osx-x64:
-      exe_runtime: "osx-x64"
-  maxParallel: 4
+  Windowsx64: 'win-x64'
+  Windowsx86: 'win-x86'
+  Linux64: 'linux-x64'
+  OSXx64: 'osx-x64'
 
 stages:
 - stage: CI
@@ -35,25 +27,25 @@ stages:
       displayName: 'Build'
       inputs:
         command: build
-        arguments: '--configuration Release'
+        arguments: '--configuration Release /p:PublishSingleFile=false'
         projects: 'LichessTournamentAggregator.sln'
 
     - task: DotNetCoreCLI@2
       displayName: 'Run tests'
       inputs:
         command: test
-        arguments: '--configuration Release --logger trx --collect "Code coverage"'
+        arguments: '--configuration Release --no-build --logger trx --collect "Code coverage"'
         nobuild: true
         projects: '**/*.Test.csproj'
         publishTestResults: true
 
 - stage: CD
-  displayName: 'Generate library package'
+  displayName: 'Generate and publish artifacts'
   dependsOn: 'CI'
   condition: and(succeeded('CI'), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
   jobs:
   - job: cd
-    displayName: 'Generate package(s)'
+    displayName: 'Generate and publish artifacts'
     pool:
       vmImage: $(Agent)
     steps:
@@ -68,19 +60,11 @@ stages:
         versionSpec: '5.3.1'
         checkLatest: true
 
-    - task: CmdLine@2
-      displayName: 'Setup Git'
-      inputs:
-        workingDirectory: $(Build.SourcesDirectory)/LichessTournamentAggregator
-        script: |
-            git config --replace-all user.email "azure@devops.com"
-            git config --replace-all user.name "Azure DevOps"
-
     - task: DotNetCoreCLI@2
       displayName: 'Build'
       inputs:
-        command: build
-        arguments: '--configuration Release'
+        command: 'build'
+        arguments: '--configuration Release /p:PublishSingleFile=false'
         projects: 'LichessTournamentAggregator.sln'
 
     - task: DotNetCoreCLI@2
@@ -95,14 +79,50 @@ stages:
         versioningScheme: 'off'
 
     - task: DotNetCoreCLI@2
-      displayName: 'Generate executable for $(exe_runtime)'
+      displayName: 'Generate executable for $(Windowsx64)'
       inputs:
         command: 'publish'
-        arguments: '--configuration Release --runtime $(exe_runtime) --output $(Build.SourcesDirectory)/LichessTournamentAggregator/Artifacts/$(exe_runtime)'
+        arguments: '--configuration Release --runtime $(Windowsx64) --output $(Build.SourcesDirectory)/LichessTournamentAggregator/Artifacts/$(Windowsx64)'
         configuration: '$(BuildConfiguration)'
         projects: '**/*.App.csproj'
-        nobuild: true
-        modifyOutputPath: 'true'
+        modifyOutputPath: false
+        publishWebProjects: false
+        zipAfterPublish: false
+        versioningScheme: 'off'
+
+    - task: DotNetCoreCLI@2
+      displayName: 'Generate executable for $(Windowsx86)'
+      inputs:
+        command: 'publish'
+        arguments: '--configuration Release --runtime $(Windowsx86) --output $(Build.SourcesDirectory)/LichessTournamentAggregator/Artifacts/$(Windowsx64)'
+        configuration: '$(BuildConfiguration)'
+        projects: '**/*.App.csproj'
+        modifyOutputPath: false
+        publishWebProjects: false
+        zipAfterPublish: false
+        versioningScheme: 'off'
+
+    - task: DotNetCoreCLI@2
+      displayName: 'Generate executable for $(Linux64)'
+      inputs:
+        command: 'publish'
+        arguments: '--configuration Release --runtime $(Linux64) --output $(Build.SourcesDirectory)/LichessTournamentAggregator/Artifacts/$(Linux64)'
+        configuration: '$(BuildConfiguration)'
+        projects: '**/*.App.csproj'
+        modifyOutputPath: false
+        publishWebProjects: false
+        zipAfterPublish: false
+        versioningScheme: 'off'
+
+    - task: DotNetCoreCLI@2
+      displayName: 'Generate executable for $(OSXx64)'
+      inputs:
+        command: 'publish'
+        arguments: '--configuration Release --runtime $(OSXx64) --output $(Build.SourcesDirectory)/LichessTournamentAggregator/Artifacts/$(OSXx64)'
+        configuration: '$(BuildConfiguration)'
+        projects: '**/*.App.csproj'
+        modifyOutputPath: false
+        publishWebProjects: false
         zipAfterPublish: false
         versioningScheme: 'off'
 
