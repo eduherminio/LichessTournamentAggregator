@@ -94,7 +94,7 @@ stages:
       displayName: 'Generate executable for $(Windowsx86)'
       inputs:
         command: 'publish'
-        arguments: '--configuration Release --runtime $(Windowsx86) --output $(Build.SourcesDirectory)/LichessTournamentAggregator/Artifacts/$(Windowsx64)'
+        arguments: '--configuration Release --runtime $(Windowsx86) --output $(Build.SourcesDirectory)/LichessTournamentAggregator/Artifacts/$(Windowsx86)'
         configuration: '$(BuildConfiguration)'
         projects: '**/*.App.csproj'
         modifyOutputPath: false
