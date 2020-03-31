@@ -134,20 +134,20 @@ stages:
 
     - task: NuGetCommand@2
       displayName: 'Push NuGet package'
+      continueOnError: true
       inputs:
         command: 'push'
         packagesToPush: '$(Build.SourcesDirectory)/LichessTournamentAggregator/Artifacts/*.nupkg'
         nuGetFeedType: 'external'
         publishFeedCredentials: 'LichessTournamentAggregator_NuGet'
         verbosityPush: 'Detailed'
-        continueOnError: true
 
     - task: NuGetCommand@2
       displayName: 'Push GitHub package'
+      continueOnError: true
       inputs:
         command: 'push'
         packagesToPush: '$(Build.SourcesDirectory)/LichessTournamentAggregator/Artifacts/*.nupkg'
         nuGetFeedType: 'external'
         publishFeedCredentials: 'GitHubPackageRegistry'
         verbosityPush: 'Detailed'
-        continueOnError: true
