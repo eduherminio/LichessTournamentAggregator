@@ -21,11 +21,13 @@ namespace LichessTournamentAggregator.App
                 : AskForTournaments().ToList();
 
             var aggregatedArgs = $"*\t{string.Join($"{Environment.NewLine}*\t", tournaments)}\n";
+            string fileName = $"Results_{DateTime.Now.ToLocalTime():yyyy'-'MM'-'dd'__'HH'_'mm'_'ss}.csv";
+
             try
             {
                 Console.WriteLine($"Aggregating tournaments:{Environment.NewLine}{aggregatedArgs}");
 
-                await AggregateResultsAndCreateCsvFile(tournaments);
+                await AggregateResultsAndCreateCsvFile(tournaments, fileName);
             }
             catch (ArgumentException e)
             {
@@ -49,6 +51,11 @@ namespace LichessTournamentAggregator.App
             }
             finally
             {
+                if (string.IsNullOrWhiteSpace(await File.ReadAllTextAsync(fileName)))
+                {
+                    File.Delete(fileName);
+                }
+
                 Console.ResetColor();
                 Console.WriteLine("\nPress any key to close this window");
                 Console.ReadKey();
@@ -72,10 +79,9 @@ namespace LichessTournamentAggregator.App
             }
         }
 
-        private static async Task AggregateResultsAndCreateCsvFile(IEnumerable<string> args)
+        private static async Task AggregateResultsAndCreateCsvFile(IEnumerable<string> args, string fileName)
         {
             var aggregator = new TournamentAggregator();
-            string fileName = $"Results_{DateTime.Now.ToLocalTime():yyyy'-'MM'-'dd'__'HH'_'mm'_'ss}.csv";
             using FileStream fs = new FileStream(fileName, FileMode.Create);
 
             await aggregator.AggregateResultsAndExportToCsv(args, fs);

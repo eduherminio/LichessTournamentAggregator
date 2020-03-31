@@ -3,10 +3,11 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <OutputType>Exe</OutputType>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <RuntimeIdentifiers>win-x64;win-x86;linux-x64;osx-x64</RuntimeIdentifiers>
     <PublishSingleFile>true</PublishSingleFile>
     <PublishTrimmed>true</PublishTrimmed>
-    <Version>0.1.1</Version>
+    <Version>0.1.2</Version>
     <Authors>Eduardo Cáceres</Authors>
     <Description>
       Multiplatform desktop app that allows you to aggregate the results of multiple Lichess tournaments

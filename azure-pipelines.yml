@@ -140,6 +140,7 @@ stages:
         nuGetFeedType: 'external'
         publishFeedCredentials: 'LichessTournamentAggregator_NuGet'
         verbosityPush: 'Detailed'
+        continueOnError: true
 
     - task: NuGetCommand@2
       displayName: 'Push GitHub package'
@@ -149,3 +150,4 @@ stages:
         nuGetFeedType: 'external'
         publishFeedCredentials: 'GitHubPackageRegistry'
         verbosityPush: 'Detailed'
+        continueOnError: true
