@@ -14,7 +14,7 @@ It's also available as a NuGet package.
 
 ## Usage
 
-Binaries for different operating systems can be found [here](https://github.com/eduherminio/LichessTournamentAggregator/releases).
+Executables for different operating systems can be found [here](https://github.com/eduherminio/LichessTournamentAggregator/releases).
 
 - Download the appropiated version.
 - Run the executable.
