@@ -72,7 +72,7 @@ namespace LichessTournamentAggregator
             var response = await client.GetAsync(url).ConfigureAwait(false);
             if (response.StatusCode != HttpStatusCode.OK)
             {
-                throw new ArgumentException("The following tournament url doesn't seem exist",
+                throw new ArgumentException("The following tournament url doesn't seem to exist",
                     $"{url.OriginalString.Replace("/results", string.Empty)}");
             }
 
