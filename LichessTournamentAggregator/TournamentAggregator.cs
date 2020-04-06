@@ -29,35 +29,30 @@ namespace LichessTournamentAggregator
 
         public async Task<FileStream> AggregateResultsAndExportToCsv(IEnumerable<string> tournamentIdsOrUrls, FileStream fileStream, string separator = ";")
         {
-            using StreamWriter sw = new StreamWriter(fileStream);
-
-            var headers = new List<string> { "Username", "Total Score", "Max Rating", "Ranks", "Scores", "Average Performance" };
-            var lines = new List<string> { string.Join(separator, headers) };
-
-            var internalSeparator = separator == ";" ? "," : ";";
-            string aggregate(IEnumerable<int> items) => $"[{string.Join(internalSeparator, items)}]";
-
+            var aggregatedResults = new List<AggregatedResult>();
             await foreach (var result in AggregateResults(tournamentIdsOrUrls))
             {
-                var columns = new string[] { result.Username, result.TotalScores.ToString(), result.MaxRating.ToString(), aggregate(result.Ranks), aggregate(result.Scores), result.AveragePerformance.ToString("F") };
-                lines.Add(string.Join(separator, columns));
+                aggregatedResults.Add(result);
             }
 
-            lines.ForEach(sw.WriteLine);
+            aggregatedResults = aggregatedResults
+                .OrderByDescending(r => r.TotalScores)
+                .ThenByDescending(r => r.AveragePerformance)
+                .ToList();
 
-            return fileStream;
+            return PopulateCsvStream(fileStream, separator, aggregatedResults);
         }
 
-        private IEnumerable<Uri> GetUrls(IEnumerable<string> tournamentIdsOrUrls)
+        internal IEnumerable<Uri> GetUrls(IEnumerable<string> tournamentIdsOrUrls)
         {
             const string lichessTournamentUrl = "lichess.org/tournament/";
             foreach (var item in tournamentIdsOrUrls.Select(str => str.Trim()))
             {
-                string tournamentId = item;
+                string tournamentId = item.Trim(new char[] { ' ', '/', '#' });
 
                 if (tournamentId.Contains(lichessTournamentUrl))
                 {
-                    var reverse = string.Join("", item.Reverse());
+                    var reverse = string.Join("", tournamentId.Reverse());
                     tournamentId = string.Join("", reverse.Take(reverse.IndexOf("/")).Reverse());
                 }
 
@@ -81,6 +76,23 @@ namespace LichessTournamentAggregator
             var lines = rawContent.Split('\n').Where(str => !string.IsNullOrWhiteSpace(str));
 
             return lines.Select(line => JsonSerializer.Deserialize<TournamentResult>(line));
+        }
+
+        private static FileStream PopulateCsvStream(FileStream fileStream, string separator, IEnumerable<AggregatedResult> aggregatedResults)
+        {
+            var headers = new List<string> { "Username", "Total Score", "Average Performance", "Max Rating", "Ranks", "Scores" };
+            using var sw = new StreamWriter(fileStream);
+            sw.WriteLine(string.Join(separator, headers));
+
+            var internalSeparator = separator == ";" ? "," : ";";
+            string aggregate(IEnumerable<int> items) => $"[{string.Join(internalSeparator, items)}]";
+            foreach (var result in aggregatedResults)
+            {
+                var columns = new string[] { result.Username, result.TotalScores.ToString(), result.AveragePerformance.ToString("F"), result.MaxRating.ToString(), aggregate(result.Ranks), aggregate(result.Scores) };
+                sw.WriteLine(string.Join(separator, columns));
+            }
+
+            return fileStream;
         }
     }
 }
