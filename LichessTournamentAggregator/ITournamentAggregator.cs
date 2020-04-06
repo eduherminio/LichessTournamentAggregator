@@ -20,7 +20,7 @@ namespace LichessTournamentAggregator
         /// <param name="tournamentIdsOrUrls"></param>
         /// <param name="fileStream">Stream where data wants to be written into</param>
         /// <param name="separator">; by default</param>
-        /// <returns></returns>
+        /// <returns>.csv FileStream with aggregated results, ordered by total scores</returns>
         Task<FileStream> AggregateResultsAndExportToCsv(IEnumerable<string> tournamentIdsOrUrls, FileStream fileStream, string separator = ";");
     }
 }
