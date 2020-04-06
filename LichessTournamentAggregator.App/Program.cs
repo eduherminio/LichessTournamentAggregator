@@ -64,8 +64,8 @@ namespace LichessTournamentAggregator.App
                 }
 
                 Console.ResetColor();
-                Console.WriteLine("\nPress any key to close this window");
-                Console.ReadKey();
+                Console.WriteLine("\nPress intro to close this window");
+                Console.ReadLine();
             }
         }
 
