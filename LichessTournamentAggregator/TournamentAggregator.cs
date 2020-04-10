@@ -17,11 +17,15 @@ namespace LichessTournamentAggregator
             var urls = GetUrls(tournamentIdsOrUrls);
             var results = (await Task.WhenAll(urls.Select(GetTournamentResults)).ConfigureAwait(false)).SelectMany(_ => _);
 
-            var resultsGroupedByPlayer = results
-                .Where(r => !string.IsNullOrWhiteSpace(r?.Username))
-                .GroupBy(r => r.Username);
+            foreach (var grouping in GroupResultsByPlayer(results))
+            {
+                yield return new AggregatedResult(grouping);
+            }
+        }
 
-            foreach (var grouping in resultsGroupedByPlayer)
+        public IEnumerable<AggregatedResult> AggregateResults(IEnumerable<TournamentResult> tournamentResults)
+        {
+            foreach (var grouping in GroupResultsByPlayer(tournamentResults))
             {
                 yield return new AggregatedResult(grouping);
             }
@@ -76,6 +80,13 @@ namespace LichessTournamentAggregator
             var lines = rawContent.Split('\n').Where(str => !string.IsNullOrWhiteSpace(str));
 
             return lines.Select(line => JsonSerializer.Deserialize<TournamentResult>(line));
+        }
+
+        private static IEnumerable<IGrouping<string, TournamentResult>> GroupResultsByPlayer(IEnumerable<TournamentResult> results)
+        {
+            return results
+                .Where(r => !string.IsNullOrWhiteSpace(r?.Username))
+                .GroupBy(r => r.Username);
         }
 
         private static FileStream PopulateCsvStream(FileStream fileStream, string separator, IEnumerable<AggregatedResult> aggregatedResults)
