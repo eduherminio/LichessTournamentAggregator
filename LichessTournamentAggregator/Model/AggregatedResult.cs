@@ -13,7 +13,7 @@ namespace LichessTournamentAggregator.Model
         /// <summary>
         /// Sum of the scores of all the tournaments
         /// </summary>
-        public int TotalScores { get; set; }
+        public double TotalScores { get; set; }
 
         /// <summary>
         /// Maximum rating while playing in the tournaments
@@ -28,7 +28,7 @@ namespace LichessTournamentAggregator.Model
         /// <summary>
         /// Score in each tournament
         /// </summary>
-        public IEnumerable<int> Scores { get; set; }
+        public IEnumerable<double> Scores { get; set; }
 
         /// <summary>
         /// Average player performance in the tournaments.
