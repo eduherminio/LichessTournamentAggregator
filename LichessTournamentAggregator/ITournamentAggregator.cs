@@ -15,6 +15,13 @@ namespace LichessTournamentAggregator
         IAsyncEnumerable<AggregatedResult> AggregateResults(IEnumerable<string> tournamentIdsOrUrls);
 
         /// <summary>
+        /// Aggregates the results of multiple tournaments
+        /// </summary>
+        /// <param name="tournamentResults"> <see cref="TournamentResult"/> </param>
+        /// <returns></returns>
+        IEnumerable<AggregatedResult> AggregateResults(IEnumerable<TournamentResult> tournamentResults);
+
+        /// <summary>
         /// Aggregates the results of multiple tournaments and exports them to a CSV file
         /// </summary>
         /// <param name="tournamentIdsOrUrls"></param>
