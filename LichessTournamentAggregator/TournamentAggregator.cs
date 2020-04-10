@@ -72,7 +72,7 @@ namespace LichessTournamentAggregator
             if (response.StatusCode != HttpStatusCode.OK)
             {
                 throw new ArgumentException("The following tournament url doesn't seem to exist",
-                    $"{url.OriginalString.Replace("/results", string.Empty)}");
+                    url.OriginalString.Replace("/results", string.Empty));
             }
 
             var rawContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -96,7 +96,7 @@ namespace LichessTournamentAggregator
             sw.WriteLine(string.Join(separator, headers));
 
             var internalSeparator = separator == ";" ? "," : ";";
-            string aggregate(IEnumerable<int> items) => $"[{string.Join(internalSeparator, items)}]";
+            string aggregate<T>(IEnumerable<T> items) => $"[{string.Join(internalSeparator, items)}]";
             foreach (var result in aggregatedResults)
             {
                 var columns = new string[] { result.Username, result.TotalScores.ToString(), result.AveragePerformance.ToString("F"), result.MaxRating.ToString(), aggregate(result.Ranks), aggregate(result.Scores) };

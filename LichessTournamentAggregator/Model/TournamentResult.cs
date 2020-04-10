@@ -8,7 +8,7 @@ namespace LichessTournamentAggregator.Model
         public int Rank { get; set; }
 
         [JsonPropertyName("score")]
-        public int Score { get; set; }
+        public double Score { get; set; }
 
         [JsonPropertyName("rating")]
         public int Rating { get; set; }
