@@ -91,7 +91,7 @@ namespace LichessTournamentAggregator
 
         private static FileStream PopulateCsvStream(FileStream fileStream, string separator, IEnumerable<AggregatedResult> aggregatedResults)
         {
-            var headers = new List<string> { "Username", "Total Score", "Average Performance", "Max Rating", "Ranks", "Scores" };
+            var headers = new List<string> { "Username", "Total Score", "Average Performance", "Max Rating", "Title", "Ranks", "Scores" };
             using var sw = new StreamWriter(fileStream);
             sw.WriteLine(string.Join(separator, headers));
 
@@ -99,7 +99,7 @@ namespace LichessTournamentAggregator
             string aggregate<T>(IEnumerable<T> items) => $"[{string.Join(internalSeparator, items)}]";
             foreach (var result in aggregatedResults)
             {
-                var columns = new string[] { result.Username, result.TotalScores.ToString(), result.AveragePerformance.ToString("F"), result.MaxRating.ToString(), aggregate(result.Ranks), aggregate(result.Scores) };
+                var columns = new string[] { result.Username, result.TotalScores.ToString(), result.AveragePerformance.ToString("F"), result.MaxRating.ToString(), result.Title, aggregate(result.Ranks), aggregate(result.Scores) };
                 sw.WriteLine(string.Join(separator, columns));
             }
 

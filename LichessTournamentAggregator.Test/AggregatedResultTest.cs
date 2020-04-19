@@ -184,5 +184,47 @@ namespace LichessTournamentAggregator.Test
                 (double)results.Where(r => r.Username == Username).Sum(r => r.Performance) / results.Count(r => r.Username == Username && r.Rank != 0),
                 aggregatedResult.AveragePerformance);
         }
+
+        [Fact]
+        public void Title()
+        {
+            ICollection<TournamentResult> results = new[]
+            {
+                new TournamentResult()
+                {
+                    Username = Username,
+                    Performance = 2801,
+                    Rank = 2,
+                    Title = "LM"
+                },
+                new TournamentResult()
+                {
+                    Username = Username,
+                    Performance = 2401,
+                    Rank = 2,
+                    Title = "LM"
+                },
+                new TournamentResult()
+                {
+                    Username = Username,
+                    Performance = 2201,
+                    Rank = 3,
+                    Title = "LM"
+                },
+                new TournamentResult()
+                {
+                    Username = Guid.NewGuid().ToString(),
+                    Performance = 3333,
+                    Rank = 1,
+                    Title = "GM"
+                }
+            };
+
+            AggregatedResult aggregatedResult = new AggregatedResult(results.GroupBy(r => r.Username).Single(g => g.Key == Username));
+
+            Assert.Equal(
+                results.Where(r => r.Username == Username).FirstOrDefault(r => !string.IsNullOrEmpty(r.Title))?.Title,
+                aggregatedResult.Title);
+        }
     }
 }

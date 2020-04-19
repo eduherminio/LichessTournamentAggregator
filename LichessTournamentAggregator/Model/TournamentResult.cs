@@ -18,5 +18,8 @@ namespace LichessTournamentAggregator.Model
 
         [JsonPropertyName("performance")]
         public int Performance { get; set; }
+
+        [JsonPropertyName("title")]
+        public string Title { get; set; }
     }
 }
