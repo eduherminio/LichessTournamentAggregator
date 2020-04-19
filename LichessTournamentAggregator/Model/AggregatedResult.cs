@@ -11,6 +11,11 @@ namespace LichessTournamentAggregator.Model
         public string Username { get; set; }
 
         /// <summary>
+        /// Chess title
+        /// </summary>
+        public string Title { get; set; }
+
+        /// <summary>
         /// Sum of the scores of all the tournaments
         /// </summary>
         public double TotalScores { get; set; }
@@ -38,6 +43,7 @@ namespace LichessTournamentAggregator.Model
         public AggregatedResult(IGrouping<string, TournamentResult> results)
         {
             Username = results.First().Username;
+            Title = results.First().Title;
             MaxRating = results.Max(p => p.Rating);
             Ranks = results.Select(p => p.Rank);
             Scores = results.Select(p => p.Score);
