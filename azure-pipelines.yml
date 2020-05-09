@@ -14,7 +14,7 @@ schedules:
     - master
 
 variables:
-  Agent: 'windows-2019'
+  Agent: 'ubuntu-latest'
   BuildConfiguration: 'Release'   # configuration to pack, does not work with build step
   Windowsx64: 'win-x64'
   Windowsx86: 'win-x86'
