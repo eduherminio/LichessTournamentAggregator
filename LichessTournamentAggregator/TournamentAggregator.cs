@@ -100,7 +100,7 @@ namespace LichessTournamentAggregator
             for (int i = 0; i < aggregatedResults.Count(); ++i)
             {
                 var result = aggregatedResults.ElementAt(i);
-                var columns = new string[] { (i + 1.ToString(), result.Username, result.TotalScores.ToString(), result.AveragePerformance.ToString("F"), result.MaxRating.ToString(), result.Title, aggregate(result.Ranks), aggregate(result.Scores) };
+                var columns = new string[] { (i + 1).ToString(), result.Username, result.TotalScores.ToString(), result.AveragePerformance.ToString("F"), result.MaxRating.ToString(), result.Title, aggregate(result.Ranks), aggregate(result.Scores) };
                 sw.WriteLine(string.Join(separator, columns));
             }
 
