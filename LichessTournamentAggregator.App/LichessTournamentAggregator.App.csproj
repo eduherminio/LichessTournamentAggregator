@@ -20,4 +20,12 @@
     <ProjectReference Include="..\LichessTournamentAggregator\LichessTournamentAggregator.csproj" />
   </ItemGroup>
 
+  <Target Name="RenameApp" AfterTargets="Publish">
+    <ItemGroup>
+      <FilesToRename Include="$(PublishDir)\$(AssemblyName)*" />
+    </ItemGroup>
+    <Message Text="## Renaming @(FilesToRename) to @(FilesToRename -> Replace('App', '$(Version)-$(RuntimeIdentifier)'))" Importance="High" />
+    <Move SourceFiles="@(FilesToRename)" DestinationFiles="@(FilesToRename -> Replace('App', '$(Version)-$(RuntimeIdentifier)'))" />
+  </Target>
+
 </Project>
