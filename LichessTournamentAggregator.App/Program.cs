@@ -11,7 +11,8 @@ namespace LichessTournamentAggregator.App
     {
         private const string RepoUrl = "https://github.com/eduherminio/LichessTournamentAggregator";
         private static readonly string FailureMessage = "The program has failed unexpectedly," +
-            $" please have a look at our FAQ: {RepoUrl}#faqs (or just contact me)," +
+            $" please have a look at our FAQ: {RepoUrl}#faqs\n" +
+            "If you still experience issues, raise an issue there (or contact me)" +
             $" including the following info:{Environment.NewLine}";
 
         public static async Task Main(string[] args)
@@ -32,28 +33,28 @@ namespace LichessTournamentAggregator.App
             catch (ArgumentException e)
             {
                 Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine("Please make sure this is the tournament url you want to aggregate:");
-                Console.WriteLine($"*\t{e.ParamName}");
+                Console.Error.WriteLine("Please make sure this is the tournament url you want to aggregate:");
+                Console.Error.WriteLine($"*\t{e.ParamName}");
             }
             catch (HttpRequestException)
             {
                 Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine("There may be some issues with Lichess server or you've reached the API limit.");
-                Console.WriteLine($"Please try again in a few minutes. If the problem persists, raise an issue in {RepoUrl}/issues");
+                Console.Error.WriteLine("There may be some issues with Lichess server or you've reached the API limit.");
+                Console.Error.WriteLine($"Please try again in a few minutes. If the problem persists, raise an issue in {RepoUrl}/issues");
             }
             catch (UnauthorizedAccessException)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"This app doesn't have permissions to write to {Path.GetFullPath(fileName)}");
-                Console.WriteLine("Please run it as administrator (right click -> run it as administrator)\n" +
+                Console.Error.WriteLine($"This app doesn't have permissions to write to {Path.GetFullPath(fileName)}");
+                Console.Error.WriteLine("Please run it as administrator (right click -> run it as administrator)\n" +
                     "or move the executable somewhere under C:/Users/<your user>");
             }
             catch (Exception e)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine(FailureMessage);
+                Console.Error.WriteLine(FailureMessage);
                 Console.ResetColor();
-                Console.WriteLine("Args:\n" + aggregatedArgs
+                Console.Error.WriteLine("Args:\n" + aggregatedArgs
                     + "\nException: " + e.Message + Environment.NewLine + e.StackTrace);
             }
             finally
