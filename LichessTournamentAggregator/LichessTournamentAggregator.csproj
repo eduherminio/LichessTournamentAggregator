@@ -7,7 +7,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <Title>LichessTournamentAggregator</Title>
     <PackageId>LichessTournamentAggregator</PackageId>
-    <Version>0.3.1</Version>
+    <Version>0.3.2</Version>
     <PackageTags>Chess, Lichess, Tournament, Aggregator</PackageTags>
     <Tags>$(PackageTags)</Tags>
     <Authors>Eduardo Cáceres</Authors>
@@ -28,7 +28,6 @@
 
   <ItemGroup>
     <PackageReference Include="System.Text.Json" Version="4.7.1"/>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
   </ItemGroup>
 
 </Project>
