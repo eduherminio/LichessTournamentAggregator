@@ -33,34 +33,26 @@ namespace LichessTournamentAggregator
 
         public async Task<FileStream> AggregateResultsAndExportToCsv(IEnumerable<string> tournamentIdsOrUrls, FileStream fileStream, string separator = ";")
         {
-            var aggregatedResults = new List<AggregatedResult>();
-            await foreach (var result in AggregateResults(tournamentIdsOrUrls))
-            {
-                aggregatedResults.Add(result);
-            }
-
-            aggregatedResults = aggregatedResults
+            var orderedResults = AggregateResults(tournamentIdsOrUrls)
                 .OrderByDescending(r => r.TotalScores)
-                .ThenByDescending(r => r.AveragePerformance)
-                .ToList();
+                .ThenByDescending(r => r.AveragePerformance);
 
-            return PopulateCsvStream(fileStream, separator, aggregatedResults);
+            return await PopulateCsvStreamAsync(fileStream, separator, orderedResults).ConfigureAwait(false);
         }
 
         internal IEnumerable<Uri> GetUrls(IEnumerable<string> tournamentIdsOrUrls)
         {
             const string lichessTournamentUrl = "lichess.org/tournament/";
-            foreach (var item in tournamentIdsOrUrls.Select(str => str.Trim()))
+            foreach (var item in tournamentIdsOrUrls.Select(str => str))
             {
-                string tournamentId = item.Trim(new char[] { ' ', '/', '#' });
+                var tournamentId = item.AsSpan().Trim(new char[] { ' ', '/', '#' });
 
-                if (tournamentId.Contains(lichessTournamentUrl))
+                if (tournamentId.Contains(lichessTournamentUrl.AsSpan(), StringComparison.InvariantCultureIgnoreCase))
                 {
-                    var reverse = string.Join("", tournamentId.Reverse());
-                    tournamentId = string.Join("", reverse.Take(reverse.IndexOf("/")).Reverse());
+                    tournamentId = tournamentId.Slice(tournamentId.LastIndexOf('/') + 1);
                 }
 
-                yield return new Uri($"https://lichess.org/api/tournament/{tournamentId}/results");
+                yield return new Uri($"https://lichess.org/api/tournament/{tournamentId.ToString()}/results");
             }
         }
 
@@ -89,7 +81,7 @@ namespace LichessTournamentAggregator
                 .GroupBy(r => r.Username);
         }
 
-        private static FileStream PopulateCsvStream(FileStream fileStream, string separator, IEnumerable<AggregatedResult> aggregatedResults)
+        private static async Task<FileStream> PopulateCsvStreamAsync(FileStream fileStream, string separator, IOrderedAsyncEnumerable<AggregatedResult> aggregatedResults)
         {
             var headers = new List<string> { "#", "Username", "Total Score", "Average Performance", "Max Rating", "Title", "Ranks", "Scores" };
             using var sw = new StreamWriter(fileStream);
@@ -97,10 +89,11 @@ namespace LichessTournamentAggregator
 
             var internalSeparator = separator == ";" ? ", " : "; ";
             string aggregate<T>(IEnumerable<T> items) => $"[{string.Join(internalSeparator, items)}]";
-            for (int i = 0; i < aggregatedResults.Count(); ++i)
+
+            await foreach (var aggregatedResult in aggregatedResults.Select((value, i) => new { i, value }))
             {
-                var result = aggregatedResults.ElementAt(i);
-                var columns = new string[] { (i + 1).ToString(), result.Username, result.TotalScores.ToString(), result.AveragePerformance.ToString("F"), result.MaxRating.ToString(), result.Title, aggregate(result.Ranks), aggregate(result.Scores) };
+                var result = aggregatedResult.value;
+                var columns = new string[] { (aggregatedResult.i + 1).ToString(), result.Username, result.TotalScores.ToString(), result.AveragePerformance.ToString("F"), result.MaxRating.ToString(), result.Title, aggregate(result.Ranks), aggregate(result.Scores) };
                 sw.WriteLine(string.Join(separator, columns));
             }
 
