@@ -42,12 +42,12 @@ namespace LichessTournamentAggregator
 
         internal IEnumerable<Uri> GetUrls(IEnumerable<string> tournamentIdsOrUrls)
         {
+            const string lichessTournamentUrl = "lichess.org/tournament/";
             foreach (var item in tournamentIdsOrUrls.Select(str => str))
             {
-                var lichessTournamentUrl = "lichess.org/tournament/".AsSpan();
                 var tournamentId = item.AsSpan().Trim(new char[] { ' ', '/', '#' });
 
-                if (tournamentId.Contains(lichessTournamentUrl, StringComparison.InvariantCultureIgnoreCase))
+                if (tournamentId.Contains(lichessTournamentUrl.AsSpan(), StringComparison.InvariantCultureIgnoreCase))
                 {
                     tournamentId = tournamentId.Slice(tournamentId.LastIndexOf('/') + 1);
                 }
