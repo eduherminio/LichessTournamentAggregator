@@ -1,4 +1,4 @@
-﻿using LichessTournamentAggregator.Model;
+using LichessTournamentAggregator.Model;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -49,18 +49,17 @@ namespace LichessTournamentAggregator
 
         internal IEnumerable<Uri> GetUrls(IEnumerable<string> tournamentIdsOrUrls)
         {
-            const string lichessTournamentUrl = "lichess.org/tournament/";
-            foreach (var item in tournamentIdsOrUrls.Select(str => str.Trim()))
+            foreach (var item in tournamentIdsOrUrls.Select(str => str))
             {
-                string tournamentId = item.Trim(new char[] { ' ', '/', '#' });
+                var lichessTournamentUrl = "lichess.org/tournament/".AsSpan();
+                var tournamentId = item.AsSpan().Trim(new char[] { ' ', '/', '#' });
 
-                if (tournamentId.Contains(lichessTournamentUrl))
+                if (tournamentId.Contains(lichessTournamentUrl, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    var reverse = string.Join("", tournamentId.Reverse());
-                    tournamentId = string.Join("", reverse.Take(reverse.IndexOf("/")).Reverse());
+                    tournamentId = tournamentId.Slice(tournamentId.LastIndexOf('/') + 1);
                 }
 
-                yield return new Uri($"https://lichess.org/api/tournament/{tournamentId}/results");
+                yield return new Uri($"https://lichess.org/api/tournament/{tournamentId.ToString()}/results");
             }
         }
 
