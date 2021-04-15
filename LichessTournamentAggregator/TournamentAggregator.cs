@@ -14,21 +14,18 @@ namespace LichessTournamentAggregator
     {
         public async IAsyncEnumerable<AggregatedResult> AggregateResults(IEnumerable<string> tournamentIdsOrUrls)
         {
-            var urls = GetUrls(tournamentIdsOrUrls);
-            var results = (await Task.WhenAll(urls.Select(GetTournamentResults)).ConfigureAwait(false)).SelectMany(_ => _);
+            var tournamentResults = await GetTournamentResults(tournamentIdsOrUrls).ConfigureAwait(false);
 
-            foreach (var grouping in GroupResultsByPlayer(results))
+            foreach (var result in AggregateResults(tournamentResults))
             {
-                yield return new AggregatedResult(grouping);
+                yield return result;
             }
         }
 
         public IEnumerable<AggregatedResult> AggregateResults(IEnumerable<TournamentResult> tournamentResults)
         {
-            foreach (var grouping in GroupResultsByPlayer(tournamentResults))
-            {
-                yield return new AggregatedResult(grouping);
-            }
+            return GroupResultsByPlayer(tournamentResults)
+                .Select(grouping => new AggregatedResult(grouping));
         }
 
         public async Task<FileStream> AggregateResultsAndExportToCsv(IEnumerable<string> tournamentIdsOrUrls, FileStream fileStream, string separator = ";")
@@ -65,7 +62,16 @@ namespace LichessTournamentAggregator
             }
         }
 
-        private async Task<IEnumerable<TournamentResult>> GetTournamentResults(Uri url)
+        protected async Task<List<TournamentResult>> GetTournamentResults(IEnumerable<string> tournamentIdsOrUrls)
+        {
+            return await GetUrls(tournamentIdsOrUrls)
+                .Select(GetTournamentResults)
+                .Aggregate((result, next) => result.Concat(next))
+                .ToListAsync()
+            .ConfigureAwait(false);
+        }
+
+        private async IAsyncEnumerable<TournamentResult> GetTournamentResults(Uri url)
         {
             var client = new HttpClient();
 
@@ -78,9 +84,10 @@ namespace LichessTournamentAggregator
 
             var rawContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
-            var lines = rawContent.Split('\n').Where(str => !string.IsNullOrWhiteSpace(str));
-
-            return lines.Select(line => JsonSerializer.Deserialize<TournamentResult>(line));
+            foreach (var line in rawContent.Split('\n').Where(str => !string.IsNullOrWhiteSpace(str)))
+            {
+                yield return JsonSerializer.Deserialize<TournamentResult>(line);
+            }
         }
 
         private static IEnumerable<IGrouping<string, TournamentResult>> GroupResultsByPlayer(IEnumerable<TournamentResult> results)
