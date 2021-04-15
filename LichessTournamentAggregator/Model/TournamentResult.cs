@@ -10,6 +10,12 @@ namespace LichessTournamentAggregator.Model
         [JsonPropertyName("score")]
         public double Score { get; set; }
 
+        /// <summary>
+        /// Only swiss
+        /// </summary>
+        [JsonPropertyName("tieBreak")]
+        public double TieBreak { get; set; }
+
         [JsonPropertyName("rating")]
         public int Rating { get; set; }
 

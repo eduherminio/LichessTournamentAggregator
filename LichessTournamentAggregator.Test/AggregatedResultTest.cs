@@ -109,6 +109,77 @@ namespace LichessTournamentAggregator.Test
         }
 
         [Fact]
+        public void TotalTieBreaks()
+        {
+            ICollection<TournamentResult> results = new[]
+            {
+                new TournamentResult()
+                {
+                    Username = Username,
+                    TieBreak = 0
+                },
+                new TournamentResult()
+                {
+                    Username = Username,
+                    TieBreak = 15
+                },
+                new TournamentResult()
+                {
+                    Username = Username,
+                    TieBreak = 5
+                },
+                new TournamentResult()
+                {
+                    Username = Username,
+                },
+                new TournamentResult()
+                {
+                    Username = Guid.NewGuid().ToString(),
+                    TieBreak = 7
+                },
+            };
+
+            AggregatedResult aggregatedResult = new AggregatedResult(results.GroupBy(r => r.Username).Single(g => g.Key == Username));
+
+            Assert.Equal(results.Where(r => r.Username == Username).Sum(r => r.TieBreak), aggregatedResult.TotalTieBreaks);
+        }
+
+        [Fact]
+        public void TieBreaks()
+        {
+            ICollection<TournamentResult> results = new[]
+            {
+                new TournamentResult()
+                {
+                    Username = Username,
+                    TieBreak = 0
+                },
+                new TournamentResult()
+                {
+                    Username = Username,
+                    TieBreak = 15
+                },
+                new TournamentResult()
+                {
+                    Username = Username,
+                    TieBreak = 5
+                },
+                new TournamentResult()
+                {
+                    Username = Guid.NewGuid().ToString(),
+                    TieBreak = 7
+                },
+            };
+
+            AggregatedResult aggregatedResult = new AggregatedResult(results.GroupBy(r => r.Username).Single(g => g.Key == Username));
+
+            foreach (var tieBreak in aggregatedResult.TieBreaks)
+            {
+                Assert.Single(results, (result) => result.Username == aggregatedResult.Username && result.TieBreak == tieBreak);
+            }
+        }
+
+        [Fact]
         public void Ranks()
         {
             ICollection<TournamentResult> results = new[]

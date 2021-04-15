@@ -21,6 +21,11 @@ namespace LichessTournamentAggregator.Model
         public double TotalScores { get; set; }
 
         /// <summary>
+        /// Sum of the Tie Breaks of all the tournaments
+        /// </summary>
+        public double TotalTieBreaks { get; set; }
+
+        /// <summary>
         /// Maximum rating while playing in the tournaments
         /// </summary>
         public double MaxRating { get; set; }
@@ -36,6 +41,11 @@ namespace LichessTournamentAggregator.Model
         public IEnumerable<double> Scores { get; set; }
 
         /// <summary>
+        /// Tie breaks in each tournament
+        /// </summary>
+        public IEnumerable<double> TieBreaks { get; set; }
+
+        /// <summary>
         /// Average player performance in the tournaments.
         /// </summary>
         public double AveragePerformance { get; set; }
@@ -47,7 +57,9 @@ namespace LichessTournamentAggregator.Model
             MaxRating = results.Max(p => p.Rating);
             Ranks = results.Select(p => p.Rank);
             Scores = results.Select(p => p.Score);
+            TieBreaks = results.Select(p => p.TieBreak);
             TotalScores = results.Select(p => p.Score).Sum();
+            TotalTieBreaks = results.Select(p => p.TieBreak).Sum();
             AveragePerformance = (double)results.Select(p => p.Performance).Sum() / results.Count(p => p.Rank != 0);
         }
     }

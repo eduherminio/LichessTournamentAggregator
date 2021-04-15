@@ -35,6 +35,7 @@ namespace LichessTournamentAggregator
         {
             var orderedResults = AggregateResults(tournamentIdsOrUrls)
                 .OrderByDescending(r => r.TotalScores)
+                .ThenByDescending(r => r.TotalTieBreaks)
                 .ThenByDescending(r => r.AveragePerformance);
 
             return await PopulateCsvStreamAsync(fileStream, separator, orderedResults).ConfigureAwait(false);
@@ -43,6 +44,9 @@ namespace LichessTournamentAggregator
         internal IEnumerable<Uri> GetUrls(IEnumerable<string> tournamentIdsOrUrls)
         {
             const string lichessTournamentUrl = "lichess.org/tournament/";
+            const string lichessSwissUrl = "lichess.org/swiss/";
+            string tournamentType = "tournament";
+
             foreach (var item in tournamentIdsOrUrls.Select(str => str))
             {
                 var tournamentId = item.AsSpan().Trim(new char[] { ' ', '/', '#' });
@@ -51,8 +55,13 @@ namespace LichessTournamentAggregator
                 {
                     tournamentId = tournamentId.Slice(tournamentId.LastIndexOf('/') + 1);
                 }
+                else if (tournamentId.Contains(lichessSwissUrl.AsSpan(), StringComparison.InvariantCultureIgnoreCase))
+                {
+                    tournamentId = tournamentId.Slice(tournamentId.LastIndexOf('/') + 1);
+                    tournamentType = "swiss";
+                }
 
-                yield return new Uri($"https://lichess.org/api/tournament/{tournamentId.ToString()}/results");
+                yield return new Uri($"https://lichess.org/api/{tournamentType}/{tournamentId.ToString()}/results");
             }
         }
 
@@ -83,7 +92,7 @@ namespace LichessTournamentAggregator
 
         private static async Task<FileStream> PopulateCsvStreamAsync(FileStream fileStream, string separator, IOrderedAsyncEnumerable<AggregatedResult> aggregatedResults)
         {
-            var headers = new List<string> { "#", "Username", "Total Score", "Average Performance", "Max Rating", "Title", "Ranks", "Scores" };
+            var headers = new List<string> { "#", "Username", "Total Score", "Total tie breaks", "Average Performance", "Max Rating", "Title", "Ranks", "Scores", "Tie breaks" };
             using var sw = new StreamWriter(fileStream);
             sw.WriteLine(string.Join(separator, headers));
 
@@ -93,7 +102,7 @@ namespace LichessTournamentAggregator
             await foreach (var aggregatedResult in aggregatedResults.Select((value, i) => new { i, value }))
             {
                 var result = aggregatedResult.value;
-                var columns = new string[] { (aggregatedResult.i + 1).ToString(), result.Username, result.TotalScores.ToString(), result.AveragePerformance.ToString("F"), result.MaxRating.ToString(), result.Title, aggregate(result.Ranks), aggregate(result.Scores) };
+                var columns = new string[] { (aggregatedResult.i + 1).ToString(), result.Username, result.TotalScores.ToString(), result.TotalTieBreaks.ToString(), result.AveragePerformance.ToString("F"), result.MaxRating.ToString(), result.Title, aggregate(result.Ranks), aggregate(result.Scores), aggregate(result.TieBreaks) };
                 sw.WriteLine(string.Join(separator, columns));
             }
 
