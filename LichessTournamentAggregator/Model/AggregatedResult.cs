@@ -56,12 +56,12 @@ namespace LichessTournamentAggregator.Model
             Username = results.First().Username;
             Title = results.First().Title;
             MaxRating = results.Max(p => p.Rating);
-            Ranks = results.Select(p => p.Rank);
+            Ranks = results.Select(p => p.Rank + 1);
             Scores = results.Select(p => CalculatePoints(p.Score));
             TieBreaks = results.Select(p => p.TieBreak);
             TotalScores = Scores.Sum();
             TotalTieBreaks = TieBreaks.Sum();
-            AveragePerformance = (double)results.Select(p => p.Performance).Sum() / results.Count(p => p.Rank != 0);
+            AveragePerformance = (double)results.Select(p => p.Performance).Sum() / results.Count();
         }
 
         /// <summary>

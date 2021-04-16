@@ -212,6 +212,7 @@ namespace LichessTournamentAggregator.Test
                 new TournamentResult()
                 {
                     Username = Username,
+                    Rank = 0
                 },
                 new TournamentResult()
                 {
@@ -234,7 +235,7 @@ namespace LichessTournamentAggregator.Test
 
             foreach (var rank in aggregatedResult.Ranks)
             {
-                Assert.Single(results, (result) => result.Username == aggregatedResult.Username && result.Rank == rank);
+                Assert.Single(results, (result) => result.Username == aggregatedResult.Username && result.Rank + 1 == rank);
             }
         }
 
@@ -243,11 +244,6 @@ namespace LichessTournamentAggregator.Test
         {
             ICollection<TournamentResult> results = new[]
             {
-                new TournamentResult()
-                {
-                    Username = Username,
-                    Rank = 0
-                },
                 new TournamentResult()
                 {
                     Username = Username,
@@ -277,7 +273,7 @@ namespace LichessTournamentAggregator.Test
             AggregatedResult aggregatedResult = new AggregatedResult(results.GroupBy(r => r.Username).Single(g => g.Key == Username));
 
             Assert.Equal(
-                (double)results.Where(r => r.Username == Username).Sum(r => r.Performance) / results.Count(r => r.Username == Username && r.Rank != 0),
+                (double)results.Where(r => r.Username == Username).Sum(r => r.Performance) / results.Count(r => r.Username == Username),
                 aggregatedResult.AveragePerformance);
         }
 
