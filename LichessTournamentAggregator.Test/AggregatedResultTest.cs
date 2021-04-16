@@ -45,17 +45,22 @@ namespace LichessTournamentAggregator.Test
                 new TournamentResult()
                 {
                     Username = Username,
-                    Score = 0
+                    Score = 60_227_444
                 },
                 new TournamentResult()
                 {
                     Username = Username,
-                    Score = 15
+                    Score = 60_999_999
                 },
                 new TournamentResult()
                 {
                     Username = Username,
-                    Score = 5
+                    Score = 45_129_774
+                },
+                new TournamentResult()
+                {
+                    Username = Username,
+                    Score = 35_094_397
                 },
                 new TournamentResult()
                 {
@@ -64,47 +69,138 @@ namespace LichessTournamentAggregator.Test
                 new TournamentResult()
                 {
                     Username = Guid.NewGuid().ToString(),
-                    Score = 7
+                    Score = 35_094_397
                 },
             };
 
             AggregatedResult aggregatedResult = new AggregatedResult(results.GroupBy(r => r.Username).Single(g => g.Key == Username));
 
-            Assert.Equal(results.Where(r => r.Username == Username).Sum(r => r.Score), aggregatedResult.TotalScores);
+            Assert.Equal(20, aggregatedResult.TotalScores);
+        }
+
+        [Theory]
+        [InlineData(299_999_999, 29.5)]
+        [InlineData(258_772_232, 25.5)]
+        [InlineData(248_289_662, 24.5)]
+        [InlineData(243_922_155, 24)]
+        [InlineData(45_129_774, 4.5)]
+        [InlineData(30_036_709, 3)]
+        [InlineData(20_021_986, 2)]
+        [InlineData(10_001_592, 1)]
+        [InlineData(5_000_709, 0.5)]
+        [InlineData(1_720, 0)]
+        public void Scores(double lichessScore, double expectedCalculatedScore)
+        {
+            var result = new TournamentResult()
+            {
+                Username = Username,
+                Score = lichessScore
+            };
+
+            ICollection<TournamentResult> results = new[]
+            {
+                result,
+                new TournamentResult()
+                {
+                    Username = $"{Username} ",
+                    Score = 30_036_709
+                },
+                new TournamentResult()
+                {
+                    Username = Guid.NewGuid().ToString(),
+                    Score = 24_392_2155
+                },
+                new TournamentResult()
+                {
+                    Username = Username,
+                    Score = 260_001_592
+                },
+                new TournamentResult()
+                {
+                    Username = Username,
+                    Score = 50_001_592
+                },
+                new TournamentResult()
+                {
+                    Username = Guid.NewGuid().ToString(),
+                    Score = 1_720
+                },
+            };
+
+            var aggregatedResult = new AggregatedResult(results.GroupBy(r => r.Username).Single(g => g.Key == result.Username));
+
+            Assert.Equal(aggregatedResult.Username, result.Username);
+            Assert.Single(aggregatedResult.Scores, (score) => score == expectedCalculatedScore);
         }
 
         [Fact]
-        public void Scores()
+        public void TotalTieBreaks()
         {
             ICollection<TournamentResult> results = new[]
             {
                 new TournamentResult()
                 {
                     Username = Username,
-                    Score = 0
+                    TieBreak = 0
                 },
                 new TournamentResult()
                 {
                     Username = Username,
-                    Score = 15
+                    TieBreak = 15
                 },
                 new TournamentResult()
                 {
                     Username = Username,
-                    Score = 5
+                    TieBreak = 5
+                },
+                new TournamentResult()
+                {
+                    Username = Username,
                 },
                 new TournamentResult()
                 {
                     Username = Guid.NewGuid().ToString(),
-                    Score = 7
+                    TieBreak = 7
                 },
             };
 
             AggregatedResult aggregatedResult = new AggregatedResult(results.GroupBy(r => r.Username).Single(g => g.Key == Username));
 
-            foreach (var score in aggregatedResult.Scores)
+            Assert.Equal(results.Where(r => r.Username == Username).Sum(r => r.TieBreak), aggregatedResult.TotalTieBreaks);
+        }
+
+        [Fact]
+        public void TieBreaks()
+        {
+            ICollection<TournamentResult> results = new[]
             {
-                Assert.Single(results, (result) => result.Username == aggregatedResult.Username && result.Score == score);
+                new TournamentResult()
+                {
+                    Username = Username,
+                    TieBreak = 0
+                },
+                new TournamentResult()
+                {
+                    Username = Username,
+                    TieBreak = 15
+                },
+                new TournamentResult()
+                {
+                    Username = Username,
+                    TieBreak = 5
+                },
+                new TournamentResult()
+                {
+                    Username = Guid.NewGuid().ToString(),
+                    TieBreak = 7
+                },
+            };
+
+            AggregatedResult aggregatedResult = new AggregatedResult(results.GroupBy(r => r.Username).Single(g => g.Key == Username));
+
+            foreach (var tieBreak in aggregatedResult.TieBreaks)
+            {
+                Assert.Single(results, (result) => result.Username == aggregatedResult.Username && result.TieBreak == tieBreak);
             }
         }
 
