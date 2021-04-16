@@ -79,7 +79,7 @@ stages:
       displayName: 'Generate NuGet package'
       inputs:
         command: 'pack'
-        arguments: '--configuration Release --no-build'
+        arguments: '--configuration Release'
         configuration: '$(BuildConfiguration)'
         packagesToPack: '**/*LichessTournamentAggregator.csproj'
         nobuild: true
@@ -90,7 +90,7 @@ stages:
       displayName: 'Generate executable for $(Windowsx64)'
       inputs:
         command: 'publish'
-        arguments: '--configuration Release --no-build --runtime $(Windowsx64) --output $(Build.SourcesDirectory)/LichessTournamentAggregator/Artifacts/$(Windowsx64)'
+        arguments: '--configuration Release --runtime $(Windowsx64) --output $(Build.SourcesDirectory)/LichessTournamentAggregator/Artifacts/$(Windowsx64)'
         configuration: '$(BuildConfiguration)'
         projects: '**/*.App.csproj'
         modifyOutputPath: false
@@ -102,7 +102,7 @@ stages:
       displayName: 'Generate executable for $(Windowsx86)'
       inputs:
         command: 'publish'
-        arguments: '--configuration Release --no-build --runtime $(Windowsx86) --output $(Build.SourcesDirectory)/LichessTournamentAggregator/Artifacts/$(Windowsx86)'
+        arguments: '--configuration Release --runtime $(Windowsx86) --output $(Build.SourcesDirectory)/LichessTournamentAggregator/Artifacts/$(Windowsx86)'
         configuration: '$(BuildConfiguration)'
         projects: '**/*.App.csproj'
         modifyOutputPath: false
@@ -114,7 +114,7 @@ stages:
       displayName: 'Generate executable for $(Linux64)'
       inputs:
         command: 'publish'
-        arguments: '--configuration Release --no-build --runtime $(Linux64) --output $(Build.SourcesDirectory)/LichessTournamentAggregator/Artifacts/$(Linux64)'
+        arguments: '--configuration Release --runtime $(Linux64) --output $(Build.SourcesDirectory)/LichessTournamentAggregator/Artifacts/$(Linux64)'
         configuration: '$(BuildConfiguration)'
         projects: '**/*.App.csproj'
         modifyOutputPath: false
@@ -126,7 +126,7 @@ stages:
       displayName: 'Generate executable for $(OSXx64)'
       inputs:
         command: 'publish'
-        arguments: '--configuration Release --no-build --runtime $(OSXx64) --output $(Build.SourcesDirectory)/LichessTournamentAggregator/Artifacts/$(OSXx64)'
+        arguments: '--configuration Release --runtime $(OSXx64) --output $(Build.SourcesDirectory)/LichessTournamentAggregator/Artifacts/$(OSXx64)'
         configuration: '$(BuildConfiguration)'
         projects: '**/*.App.csproj'
         modifyOutputPath: false
