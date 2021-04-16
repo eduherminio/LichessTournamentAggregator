@@ -7,7 +7,7 @@
     <RuntimeIdentifiers>win-x64;win-x86;linux-x64;osx-x64</RuntimeIdentifiers>
     <PublishSingleFile>true</PublishSingleFile>
     <PublishTrimmed>true</PublishTrimmed>
-    <Version>0.2.2</Version>
+    <Version>0.3.0</Version>
     <Authors>Eduardo Cáceres</Authors>
     <Description>
       Multiplatform desktop app that allows you to aggregate the results of multiple Lichess tournaments
