@@ -7,8 +7,17 @@ namespace LichessTournamentAggregator.Model
         [JsonPropertyName("rank")]
         public int Rank { get; set; }
 
+        /// <summary>
+        /// Only arena
+        /// </summary>
         [JsonPropertyName("score")]
         public double Score { get; set; }
+
+        /// <summary>
+        /// Only swiss
+        /// </summary>
+        [JsonPropertyName("points")]
+        public double Points { get; set; }
 
         /// <summary>
         /// Only swiss

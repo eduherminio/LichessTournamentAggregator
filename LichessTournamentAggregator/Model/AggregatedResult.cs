@@ -57,22 +57,11 @@ namespace LichessTournamentAggregator.Model
             Title = results.First().Title;
             MaxRating = results.Max(p => p.Rating);
             Ranks = results.Select(p => p.Rank + 1);
-            Scores = results.Select(p => CalculatePoints(p.Score));
+            Scores = results.Select(p => p.Score >= p.Points ? p.Score : p.Points);  // A TournamentResult should only have either Score (Arena tournaments) or Points (Swiss tournaments)
             TieBreaks = results.Select(p => p.TieBreak);
             TotalScores = Scores.Sum();
             TotalTieBreaks = TieBreaks.Sum();
             AveragePerformance = (double)results.Select(p => p.Performance).Sum() / results.Count();
-        }
-
-        /// <summary>
-        /// Lichess score: https://github.com/lichess-org/api/issues/99
-        /// </summary>
-        /// <param name="lichessScore"></param>
-        /// <returns></returns>
-        private static double CalculatePoints(double lichessScore)
-        {
-            // Flooring to the nearest half, see https://stackoverflow.com/questions/1329426/how-do-i-round-to-the-nearest-0-5
-            return Math.Floor(2 * (lichessScore / 10_000_000)) / 2;
         }
     }
 }
