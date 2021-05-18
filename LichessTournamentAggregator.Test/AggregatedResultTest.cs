@@ -38,29 +38,29 @@ namespace LichessTournamentAggregator.Test
         }
 
         [Fact]
-        public void TotalScores()
+        public void Scores_TotalScores()
         {
             ICollection<TournamentResult> results = new[]
             {
                 new TournamentResult()
                 {
                     Username = Username,
-                    Score = 60_227_444
+                    Score = 6.5
                 },
                 new TournamentResult()
                 {
                     Username = Username,
-                    Score = 60_999_999
+                    Score = 7
                 },
                 new TournamentResult()
                 {
                     Username = Username,
-                    Score = 45_129_774
+                    Score = 5
                 },
                 new TournamentResult()
                 {
                     Username = Username,
-                    Score = 35_094_397
+                    Score = 2
                 },
                 new TournamentResult()
                 {
@@ -69,68 +69,17 @@ namespace LichessTournamentAggregator.Test
                 new TournamentResult()
                 {
                     Username = Guid.NewGuid().ToString(),
-                    Score = 35_094_397
+                    Score = 1_000
                 },
             };
 
             AggregatedResult aggregatedResult = new AggregatedResult(results.GroupBy(r => r.Username).Single(g => g.Key == Username));
 
-            Assert.Equal(20, aggregatedResult.TotalScores);
-        }
-
-        [Theory]
-        [InlineData(299_999_999, 29.5)]
-        [InlineData(258_772_232, 25.5)]
-        [InlineData(248_289_662, 24.5)]
-        [InlineData(243_922_155, 24)]
-        [InlineData(45_129_774, 4.5)]
-        [InlineData(30_036_709, 3)]
-        [InlineData(20_021_986, 2)]
-        [InlineData(10_001_592, 1)]
-        [InlineData(5_000_709, 0.5)]
-        [InlineData(1_720, 0)]
-        public void Scores(double lichessScore, double expectedCalculatedScore)
-        {
-            var result = new TournamentResult()
+            Assert.Equal(20.5, aggregatedResult.TotalScores);
+            foreach (var result in results.Where(r => r.Username == Username))
             {
-                Username = Username,
-                Score = lichessScore
-            };
-
-            ICollection<TournamentResult> results = new[]
-            {
-                result,
-                new TournamentResult()
-                {
-                    Username = $"{Username} ",
-                    Score = 30_036_709
-                },
-                new TournamentResult()
-                {
-                    Username = Guid.NewGuid().ToString(),
-                    Score = 24_392_2155
-                },
-                new TournamentResult()
-                {
-                    Username = Username,
-                    Score = 260_001_592
-                },
-                new TournamentResult()
-                {
-                    Username = Username,
-                    Score = 50_001_592
-                },
-                new TournamentResult()
-                {
-                    Username = Guid.NewGuid().ToString(),
-                    Score = 1_720
-                },
-            };
-
-            var aggregatedResult = new AggregatedResult(results.GroupBy(r => r.Username).Single(g => g.Key == result.Username));
-
-            Assert.Equal(aggregatedResult.Username, result.Username);
-            Assert.Single(aggregatedResult.Scores, (score) => score == expectedCalculatedScore);
+                Assert.Contains(result.Score, aggregatedResult.Scores);
+            }
         }
 
         [Fact]
