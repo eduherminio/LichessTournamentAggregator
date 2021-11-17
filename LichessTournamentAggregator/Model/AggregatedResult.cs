@@ -56,7 +56,7 @@ namespace LichessTournamentAggregator.Model
             Username = results.First().Username;
             Title = results.First().Title;
             MaxRating = results.Max(p => p.Rating);
-            Ranks = results.Select(p => p.Rank + 1);
+            Ranks = results.Select(p => p.Rank);
             Scores = results.Select(p => p.Score >= p.Points ? p.Score : p.Points);  // A TournamentResult should only have either Score (Arena tournaments) or Points (Swiss tournaments)
             TieBreaks = results.Select(p => p.TieBreak);
             TotalScores = Scores.Sum();
