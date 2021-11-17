@@ -184,7 +184,7 @@ namespace LichessTournamentAggregator.Test
 
             foreach (var rank in aggregatedResult.Ranks)
             {
-                Assert.Single(results, (result) => result.Username == aggregatedResult.Username && result.Rank + 1 == rank);
+                Assert.Single(results, (result) => result.Username == aggregatedResult.Username && result.Rank == rank);
             }
         }
 
